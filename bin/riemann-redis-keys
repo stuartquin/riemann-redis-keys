@@ -36,15 +36,24 @@ class Riemann::Tools::RedisKeys
     begin
       @key_types.each do |key, key_type|
         type = key_type
+        # If nil, grab type from redis
         if type.nil?
           t = @redis.type key
           @key_types[key] = t unless t == "none"
         end
 
         if !type.nil?
-          val = @redis.send(@key_operations[type], key)
-          puts key
-          puts val
+          value = @redis.send(@key_operations[type], key)
+
+          data = {
+            :host    => opts[:redis_host].dup,
+            :service => "redis #{key}",
+            :metric  => value.to_s,
+            :state   => value.to_s,
+            :tags    => ['redis']
+          }
+
+          report(data)
         end
       end
     rescue ::Redis::CommandError => e
