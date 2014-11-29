@@ -1,8 +1,58 @@
 #!/usr/bin/env ruby
 require 'riemann/tools'
+require 'pry'
 
 class Riemann::Tools::RedisKeys
   include Riemann::Tools
   require 'redis'
 
+  opt :redis_host, "Redis hostname", :default => 'localhost'
+  opt :redis_port, "Redis port", :default => 6379
+  opt :redis_password, "Redis password", :default => ''
+  opt :redis_url, "Redis URL", :default => ''
+  opt :redis_socket, "Redis socket", :default => ''
+  opt :redis_section, "Redis INFO section", :type => String, :multi => true, :default => 'default'
+  opt :redis_key, "Redis keys", :type => :strings, :multi => true
+
+  def initialize
+    options = if opts[:redis_url] != ''
+                { :url => opts[:redis_url] }
+              elsif opts[:redis_socket] != ''
+                { :path => opts[:redis_socket] }
+              else
+                { :host => opts[:redis_host], :port => opts[:redis_port] }
+              end
+    @redis = ::Redis.new(options)
+    @redis.auth(opts[:redis_password]) unless opts[:redis_password] == ''
+    @key_types = Hash[opts[:redis_key].collect { |v| [v.first, nil] }]
+
+    @key_operations = {"list" => :llen, "set" => :scard, "zset" => :zcard,
+                       "hash" => :hlen, "string" => :strlen}
+
+  end
+
+
+  def tick
+    begin
+      @key_types.each do |key, key_type|
+        type = key_type
+        if type.nil?
+          t = @redis.type key
+          @key_types[key] = t unless t == "none"
+        end
+
+        if !type.nil?
+          val = @redis.send(@key_operations[type], key)
+          puts key
+          puts val
+        end
+      end
+    rescue ::Redis::CommandError => e
+      if e.message == "ERR operation not permitted"
+        @redis.auth(opts[:redis_password]) unless opts[:redis_password] == ''
+      end
+    end
+  end
 end
+
+Riemann::Tools::RedisKeys.run
