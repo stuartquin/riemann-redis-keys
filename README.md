@@ -9,6 +9,12 @@ Supports reporting the size/cardinality/length of the following key types:
 * hash
 * string
 
+## Installation
+
+```bash
+gem install riemann-redis-keys
+```
+
 ## Usage
 
 ```bash
