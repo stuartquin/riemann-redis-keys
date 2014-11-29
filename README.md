@@ -12,5 +12,10 @@ Supports reporting the size/cardinality/length of the following key types:
 ## Usage
 
 ```bash
-riemann-redis-keys --redis-key "enrichment_queue" --redis-key "other"
+riemann-redis-keys --redis-key "key:one" --redis-key "other:key"
+```
+
+Specify additional conneciton info:
+```
+riemann-redis-keys --redis-key "other:key" --redis-url "redis://localhost:6379"
 ```
