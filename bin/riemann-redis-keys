@@ -1,6 +1,5 @@
 #!/usr/bin/env ruby
 require 'riemann/tools'
-require 'pry'
 
 class Riemann::Tools::RedisKeys
   include Riemann::Tools
