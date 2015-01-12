@@ -13,6 +13,10 @@ class Riemann::Tools::RedisKeys
   opt :redis_section, "Redis INFO section", :type => String, :multi => true, :default => 'default'
   opt :redis_key, "Redis keys", :type => :strings, :multi => true
 
+  # Thresholds
+  opt :warning, "Warning threshold", :type => Integer
+  opt :critical, "Critital threshold", :type => Integer
+
   def initialize
     options = if opts[:redis_url] != ''
                 { :url => opts[:redis_url] }
@@ -44,13 +48,22 @@ class Riemann::Tools::RedisKeys
         if !type.nil?
           value = @redis.send(@key_operations[type], key)
 
+          state = "ok"
+          [:warning, :critical].each do |threshold|
+            if !opts[threshold].nil? && value > opts[threshold]
+              state = threshold.to_s
+            end
+          end
+
           data = {
             :host    => opts[:redis_host].dup,
             :service => "redis #{key}",
             :metric  => value.to_s,
-            :state   => value.to_s,
+            :state   => state,
             :tags    => ['redis']
           }
+
+          puts data
 
           report(data)
         end
