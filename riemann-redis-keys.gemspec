@@ -2,7 +2,7 @@ Gem::Specification.new do |s|
   s.rubyforge_project = 'riemann-redis-keys'
 
   s.name = 'riemann-redis-keys'
-  s.version = '0.1.1'
+  s.version = '0.1.2'
   s.author = 'Stuart Quin'
   s.email = 'stuart.quin@gmail.com'
   s.homepage = 'https://github.com/stuartquin/riemann-redis-keys'
