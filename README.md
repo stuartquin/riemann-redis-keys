@@ -27,3 +27,12 @@ Specify additional conneciton info:
 ```
 riemann-redis-keys --redis-key "other:key" --redis-url "redis://localhost:6379"
 ```
+
+### Thresholds
+
+The riemann state field can be controlled by setting thresholds for critical
+and warning. Default value is "ok"
+
+```
+riemann-redis-keys --redis-key "test:key" --warning 3 --critical 5
+```
